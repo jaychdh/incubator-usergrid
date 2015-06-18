@@ -1027,29 +1027,27 @@ public class CassandraService {
      *
      * @throws Exception the exception
      */
-       public IndexScanner getIdList( Keyspace ko, Object key, UUID start, UUID finish, int count, boolean reversed,
-                                      IndexBucketLocator locator, UUID applicationId, String collectionName, boolean keepFirst )
+       public IndexScanner getIdList( Object key, UUID start, UUID finish, int count, boolean reversed,
+                                      final String bucket, UUID applicationId, boolean keepFirst )
                throws Exception {
 
-           //TODO, refactor this
-           throw new UnsupportedOperationException( "Implement me" );
+           if ( count <= 0 ) {
+               count = DEFAULT_COUNT;
+           }
 
-   //        if ( count <= 0 ) {
-   //            count = DEFAULT_COUNT;
-   //        }
-   //
-   //        if ( NULL_ID.equals( start ) ) {
-   //            start = null;
-   //        }
-   //
-   //
-   //        final boolean skipFirst = start != null && !keepFirst;
-   //
-   //        IndexScanner scanner =
-   //                new IndexBucketScanner( this, locator, ENTITY_ID_SETS, applicationId, IndexType.COLLECTION, key, start,
-   //                        finish, reversed, count, skipFirst, collectionName );
-   //
-   //        return scanner;
+           if ( NULL_ID.equals( start ) ) {
+               start = null;
+           }
+
+
+           final boolean skipFirst = start != null && !keepFirst;
+
+
+           IndexScanner scanner =
+                   new IndexBucketScanner( this, ENTITY_ID_SETS, applicationId, key, bucket, start,
+                           finish, reversed, count, skipFirst );
+
+           return scanner;
        }
 
 

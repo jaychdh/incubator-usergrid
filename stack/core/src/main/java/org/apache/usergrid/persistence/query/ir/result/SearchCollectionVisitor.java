@@ -100,10 +100,10 @@ public class SearchCollectionVisitor extends SearchVisitor {
 
 
         IndexScanner indexScanner = cassandraService
-                .getIdList( cassandraService.getApplicationKeyspace( applicationId ),
+                .getIdList(
                         key( headEntity.getUuid(), DICTIONARY_COLLECTIONS, collectionName ), startId, null,
-                        queryProcessor.getPageSizeHint( node ), query.isReversed(), indexBucketLocator, applicationId,
-                        collectionName, node.isForceKeepFirst() );
+                        queryProcessor.getPageSizeHint( node ), query.isReversed(), bucket,  applicationId,
+                        node.isForceKeepFirst() );
 
         this.results.push( new SliceIterator( slice, indexScanner, UUID_PARSER ) );
     }

@@ -149,7 +149,7 @@ public class IndexBucketScanner implements IndexScanner {
         }
 
         //remove the first element since it needs to be skipped AFTER the size check. Otherwise it will fail
-        if ( firstPageSkipFirst ) {
+        if ( firstPageSkipFirst && resultsTree.size() > 0 ) {
             resultsTree.remove( 0 );
         }
 
