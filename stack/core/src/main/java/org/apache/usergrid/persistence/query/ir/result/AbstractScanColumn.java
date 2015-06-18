@@ -30,9 +30,9 @@ import org.apache.cassandra.utils.ByteBufferUtil;
  */
 public abstract class AbstractScanColumn implements ScanColumn {
 
-    private final UUID uuid;
-    private final ByteBuffer buffer;
-    private ScanColumn child;
+    protected final UUID uuid;
+    protected final ByteBuffer buffer;
+    protected ScanColumn child;
 
 
     protected AbstractScanColumn( final UUID uuid, final ByteBuffer columnNameBuffer ) {

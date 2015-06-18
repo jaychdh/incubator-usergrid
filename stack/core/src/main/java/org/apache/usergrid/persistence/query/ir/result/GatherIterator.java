@@ -1,9 +1,11 @@
 package org.apache.usergrid.persistence.query.ir.result;
 
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.TreeSet;
@@ -21,18 +23,18 @@ import org.apache.usergrid.persistence.query.ir.SearchVisitor;
 public class GatherIterator implements ResultIterator {
 
 
-    private final Collection<SearchVisitor> searchVisitors;
     private final QueryNode rootNode;
     private final int pageSize;
 
 
     private Set<ScanColumn> next;
+    private List<ResultIterator> iterators;
 
 
     public GatherIterator(final int pageSize, final QueryNode rootNode, final Collection<SearchVisitor> searchVisitors) {
         this.pageSize = pageSize;
         this.rootNode = rootNode;
-        this.searchVisitors = searchVisitors;
+        createIterators(searchVisitors);
     }
 
 
@@ -56,8 +58,7 @@ public class GatherIterator implements ResultIterator {
 
     @Override
     public boolean hasNext() {
-
-        if(next() == null){
+        if(next == null){
             advance();
         }
 
@@ -76,33 +77,55 @@ public class GatherIterator implements ResultIterator {
         return results;
     }
 
+    private void createIterators(final Collection<SearchVisitor> searchVisitors ){
+
+        this.iterators = new ArrayList<ResultIterator>( searchVisitors.size() );
+
+        for(SearchVisitor visitor: searchVisitors){
+
+            try {
+                rootNode.visit( visitor );
+            }
+            catch ( Exception e ) {
+                throw new RuntimeException( "Unable to process query", e );
+            }
+
+            final ResultIterator iterator = visitor.getResults();
+
+            iterators.add( iterator );
+
+        }
+
+    }
 
     /**
      * Advance the iterator
      */
     private void advance(){
         //TODO make this concurrent
-
-
         final TreeSet<ScanColumn> results = new TreeSet<ScanColumn>(  );
 
 
-        for(SearchVisitor visitor: searchVisitors){
-              merge(results, visitor);
+        for(ResultIterator iterator: this.iterators){
+              merge(results, iterator);
         }
 
-        this.next = results;
+        if(results.size() == 0){
+            this.next = null;
+        }else {
+            this.next = results;
+        }
     }
+
+
 
 
     /**
      * Merge this interator into our final column results
      * @param results
-     * @param visitor
+     * @param iterator
      */
-    private void merge(final TreeSet<ScanColumn> results, final SearchVisitor visitor){
-
-        final ResultIterator iterator = visitor.getResults();
+    private void merge(final TreeSet<ScanColumn> results, final ResultIterator iterator){
 
 
         //nothing to do, return
