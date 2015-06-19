@@ -77,7 +77,7 @@ public class SearchCollectionVisitor extends SearchVisitor {
         // perform the search
         else {
             columns =
-                    searchIndexBuckets( indexKey, slice, collection.getName(), queryProcessor.getPageSizeHint( node ) );
+                    searchIndexBuckets( indexKey, slice, queryProcessor.getPageSizeHint( node ) );
         }
 
         return columns;
@@ -149,10 +149,9 @@ public class SearchCollectionVisitor extends SearchVisitor {
      *
      * @param indexKey The index key to read
      * @param slice Slice set in the query
-     * @param collectionName The name of the collection to search
      * @param pageSize The page size to load when iterating
      */
-    private IndexScanner searchIndexBuckets( Object indexKey, QuerySlice slice, String collectionName, int pageSize )
+    private IndexScanner searchIndexBuckets( Object indexKey, QuerySlice slice, int pageSize )
             throws Exception {
 
         DynamicComposite[] range = slice.getRange();
